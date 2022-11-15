@@ -40,6 +40,7 @@ def get_photos(img):
 if __name__ == '__main__':
     import os
     import argparse
+    from tqdm import tqdm
     parser = argparse.ArgumentParser(
         prog='scanned-photos-extractor',
         description='Extracts photos from scanned image')
@@ -52,7 +53,7 @@ if __name__ == '__main__':
         help='scanned image files to be processed')
     args = parser.parse_args()
     newhead = args.output_dir
-    for input_file in args.files:
+    for input_file in tqdm(args.files):
         head, tail = os.path.split(input_file)
         root, ext = os.path.splitext(tail)
         img = cv2.imread(input_file)
@@ -63,4 +64,3 @@ if __name__ == '__main__':
             output_file = os.path.join(newhead, newtail)
             ok = cv2.imwrite(output_file, photo)
             assert ok, "Could not write to file '{}'".format(output_file)
-            print("Wrote photo to '{}'!".format(output_file))
