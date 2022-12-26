@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from operator import itemgetter
 
 
 def display(img, frameName="OpenCV Image"):
@@ -27,13 +28,22 @@ def get_photos(img):
         if area/10 < cv2.contourArea(box) < area*2/3:
             width = int(rect[1][0])
             height = int(rect[1][1])
+            cx, cy = np.mean(box, axis=0)
             src_pts = box.astype("float32")
             dst_pts = np.array([[0, height-1],
                                 [0, 0],
                                 [width-1, 0],
                                 [width-1, height-1]], dtype="float32")
             M = cv2.getPerspectiveTransform(src_pts, dst_pts)
-            photos.append(cv2.warpPerspective(img, M, (width, height)))
+            photo = cv2.warpPerspective(img, M, (width, height))
+            photos.append({
+                'photo': photo,
+                'x': cx,
+                'y': cy,
+            })
+    photos = sorted(photos, key=itemgetter('x'))
+    photos = sorted(photos, key=itemgetter('y'))
+    photos = list(map(itemgetter('photo'), photos))
     return photos
 
 
